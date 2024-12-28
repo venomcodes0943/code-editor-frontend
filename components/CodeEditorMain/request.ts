@@ -2,7 +2,9 @@ import instance from "@/lib/instance";
 
 interface RunCodeResponse {
   success: boolean;
-  data?: string;
+  data?: {
+    output: string;
+  };
   message?: string;
 }
 
@@ -19,6 +21,7 @@ export const runCode = async (file: FormData): Promise<RunCodeResponse> => {
       data: response.data,
       message: "File uploaded successfully!",
     };
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     // Extract and log detailed error information
