@@ -7,18 +7,11 @@ import * as monaco from "monaco-editor";
 import { OnMount } from "@monaco-editor/react";
 import { runCode } from "./request";
 import getDefaultCode from "./getDefaultCode";
-
-type ThemeTypes = "light" | "dark";
-type SupportedLanguage = "python" | "go" | "c" | "cpp";
-
-interface CodeResponse {
-  success: boolean;
-  data: { output: string };
-  message?: string;
-}
+import { CodeResponse, SupportedLanguage, ThemeTypes } from "./types";
+import { languages } from "./constants";
 
 const CodeEditorMain = () => {
-  // States for theme, language, code, and error messages
+
   const [theme, setTheme] = useState<ThemeTypes>("dark");
   const [language, setLanguage] = useState<SupportedLanguage>("python");
   const [output, setOutput] = useState<string>("");
@@ -26,19 +19,11 @@ const CodeEditorMain = () => {
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  const languages = {
-    python: "py",
-    go: "go",
-    c: "c",
-    cpp: "cpp",
-  } as const;
 
-  // Set the editor's reference
   const handleEditorRef: OnMount = (editor) => {
     editorRef.current = editor;
   };
 
-  // Update editor with default code when language changes
   useEffect(() => {
     if (editorRef.current) {
       const defaultCode = getDefaultCode(language);
@@ -46,7 +31,6 @@ const CodeEditorMain = () => {
     }
   }, [language]);
 
-  // Handle code execution
   const handleClickForCode = async () => {
     if (!editorRef.current) {
       setError("Editor is not initialized.");
@@ -60,15 +44,13 @@ const CodeEditorMain = () => {
       return;
     }
 
-    setError(""); // Clear previous errors
+    setError("");
 
     try {
-      // Prepare code file for submission
       const codeFile = new Blob([codeContent], { type: language });
       const formData = new FormData();
       formData.append("codeFile", codeFile, `code.${languages[language]}`);
 
-      // Run the code and handle response
       const response = await runCode(formData) as CodeResponse;
 
       if (response.success) {

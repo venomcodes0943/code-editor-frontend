@@ -1,18 +1,9 @@
 "use client";
 
-import Editor, { OnMount } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 import Loader from "../Loader";
 import getDefaultCode from "../CodeEditorMain/getDefaultCode";
-import { Dispatch, SetStateAction } from "react";
-
-interface CodeEditorProps {
-  theme?: string;
-  language?: string;
-  onLanguageChange: Dispatch<SetStateAction<"python" | "go" | "c" | "cpp">>;
-  onMountFn: OnMount;
-}
-
-
+import { CodeEditorProps } from "./types";
 
 const CodeEditor = ({
   theme = "light",
@@ -23,7 +14,7 @@ const CodeEditor = ({
   return (
     <>
       <Editor
-        className="border-4 border-[#1E1E1E] rounded-md"
+        className="rounded-md"
         defaultLanguage={language}
         defaultValue={getDefaultCode(language)}
         theme={`vs-${theme}`}

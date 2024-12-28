@@ -25,7 +25,7 @@ const Navbar = ({
       className={`${theme === "dark" ? "bg-[#1E1E1E] text-white" : ""
         } rounded-md border shadow-lg py-1 px-8 flex justify-between items-center`}
     >
-      <div className="text-2xl font-bold">Navbar</div>
+      <div className="text-2xl font-bold cursor-pointer">Hoddy</div>
       <div className="flex items-center space-x-2">
         <DropdownMenu>
           <DropdownMenuTrigger className="px-4 outline-none border-b-2 py-1">
