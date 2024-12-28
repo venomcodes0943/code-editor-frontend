@@ -10,19 +10,21 @@ import getDefaultCode from "./getDefaultCode";
 
 type ThemeTypes = "light" | "dark";
 type SupportedLanguage = "python" | "go" | "c" | "cpp";
+
 interface CodeResponse {
   success: boolean;
-  data: {
-    output: string;
-  };
+  data: { output: string };
   message?: string;
 }
 
 const CodeEditorMain = () => {
+  // States for theme, language, code, and error messages
   const [theme, setTheme] = useState<ThemeTypes>("dark");
   const [language, setLanguage] = useState<SupportedLanguage>("python");
-  const [code, setCode] = useState<string>("");
-  const [error, setError] = useState<string>('')
+  const [output, setOutput] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
   const languages = {
     python: "py",
@@ -31,56 +33,57 @@ const CodeEditorMain = () => {
     cpp: "cpp",
   } as const;
 
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-
+  // Set the editor's reference
   const handleEditorRef: OnMount = (editor) => {
     editorRef.current = editor;
   };
 
+  // Update editor with default code when language changes
   useEffect(() => {
     if (editorRef.current) {
       const defaultCode = getDefaultCode(language);
       editorRef.current.setValue(defaultCode);
     }
-  }, [language])
+  }, [language]);
 
-
+  // Handle code execution
   const handleClickForCode = async () => {
+    if (!editorRef.current) {
+      setError("Editor is not initialized.");
+      return;
+    }
+
+    const codeContent = editorRef.current.getValue();
+
+    if (!codeContent.trim()) {
+      setError("Code content cannot be empty");
+      return;
+    }
+
+    setError(""); // Clear previous errors
+
     try {
-      if (editorRef.current) {
-        const codeContent = editorRef.current.getValue();
+      // Prepare code file for submission
+      const codeFile = new Blob([codeContent], { type: language });
+      const formData = new FormData();
+      formData.append("codeFile", codeFile, `code.${languages[language]}`);
 
-        if (!codeContent.trim()) {
-          setError("Code content cannot be empty");
-          return;
-        }
-        setError('');
+      // Run the code and handle response
+      const response = await runCode(formData) as CodeResponse;
 
-        const newFile = new Blob([codeContent], { type: language });
-        const formData = new FormData();
-        formData.append("codeFile", newFile, `code.${languages[language]}`);
-
-        const response = await runCode(formData) as CodeResponse;
-
-        if (response.success) {
-          setCode(response.data.output || "");
-          console.log("Upload successful:", response.data.output);
-        } else {
-          console.error("Upload failed:", response.message);
-          setError(`Error: ${response.message || "Unknown error occurred"}`);
-        }
+      if (response.success) {
+        setOutput(response.data.output || "No output provided.");
       } else {
-        console.error("Editor is not initialized.");
-        setCode("Error: Editor is not initialized");
+        setError(response.message || "An unknown error occurred while running the code.");
       }
-    } catch (error) {
-      console.error("An error occurred while uploading the file:", error);
-      setCode(`Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
+    } catch (err) {
+      setError(`Error: ${err instanceof Error ? err.message : "Unknown error occurred."}`);
     }
   };
 
   return (
     <div className="px-2 flex flex-col justify-center items-center bg-[#FFF0DC] h-screen">
+      {/* Navbar */}
       <div className="w-full my-2">
         <Navbar
           runCode={handleClickForCode}
@@ -89,8 +92,9 @@ const CodeEditorMain = () => {
           changeTheme={setTheme}
         />
       </div>
+
       <div className="w-full flex items-center flex-1 my-1 h-full gap-2">
-        {/* Input */}
+        {/* Code Editor Section */}
         <div className="w-[70%] h-[90vh] overflow-y-auto">
           <CodeEditor
             onMountFn={handleEditorRef}
@@ -100,23 +104,21 @@ const CodeEditorMain = () => {
           />
         </div>
 
-        {/* Output */}
+        {/* Output Section */}
         <div
           className={`w-[30%] h-full p-2 rounded ${theme === "dark" ? "bg-[#1E1E1E]" : "bg-white"
             }`}
         >
-          {error === '' ? <div
-            className={`text-sm font-mono ${theme === "dark" ? "text-white" : "text-gray-700"
-              }`}
-          >
-            {code || ' Code output will show here'}
-          </div> : null}
-
-          {error && <div
-            className={`text-sm font-mono text-red-500`}
-          >
-            {error}
-          </div>}
+          {error ? (
+            <div className="text-sm font-mono text-red-500">{error}</div>
+          ) : (
+            <div
+              className={`text-sm font-mono ${theme === "dark" ? "text-white" : "text-gray-700"
+                }`}
+            >
+              {output || "Code output will show here."}
+            </div>
+          )}
         </div>
       </div>
     </div>

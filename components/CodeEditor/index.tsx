@@ -23,6 +23,7 @@ const CodeEditor = ({
   return (
     <>
       <Editor
+        className="border-4 border-[#1E1E1E] rounded-md"
         defaultLanguage={language}
         defaultValue={getDefaultCode(language)}
         theme={`vs-${theme}`}
