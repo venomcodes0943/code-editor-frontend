@@ -8,7 +8,8 @@ import { OnMount } from "@monaco-editor/react";
 import { runCode } from "./request";
 import getDefaultCode from "./getDefaultCode";
 
-// Update the response interface to match the actual response structure
+type ThemeTypes = "light" | "dark";
+type SupportedLanguage = "python" | "go" | "c" | "cpp";
 interface CodeResponse {
   success: boolean;
   data: {
@@ -18,8 +19,8 @@ interface CodeResponse {
 }
 
 const CodeEditorMain = () => {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [language, setLanguage] = useState<"python" | "go" | "c" | "cpp">("python");
+  const [theme, setTheme] = useState<ThemeTypes>("dark");
+  const [language, setLanguage] = useState<SupportedLanguage>("python");
   const [code, setCode] = useState<string>("");
   const [error, setError] = useState<string>('')
 
@@ -90,7 +91,7 @@ const CodeEditorMain = () => {
       </div>
       <div className="w-full flex items-center flex-1 my-1 h-full gap-2">
         {/* Input */}
-        <div className="w-[70%] h-full">
+        <div className="w-[70%] h-[90vh] overflow-y-auto">
           <CodeEditor
             onMountFn={handleEditorRef}
             language={language}
@@ -104,13 +105,18 @@ const CodeEditorMain = () => {
           className={`w-[30%] h-full p-2 rounded ${theme === "dark" ? "bg-[#1E1E1E]" : "bg-white"
             }`}
         >
-          <div
-            className={`text-sm font-mono ${error && 'text-red-500'}  ${theme === "dark" ? "text-white" : "text-gray-700"
+          {error === '' ? <div
+            className={`text-sm font-mono ${theme === "dark" ? "text-white" : "text-gray-700"
               }`}
           >
-            {error || code || "Code output will show here:"}
+            {code || ' Code output will show here'}
+          </div> : null}
 
-          </div>
+          {error && <div
+            className={`text-sm font-mono text-red-500`}
+          >
+            {error}
+          </div>}
         </div>
       </div>
     </div>

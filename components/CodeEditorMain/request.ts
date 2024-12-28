@@ -24,17 +24,10 @@ export const runCode = async (file: FormData): Promise<RunCodeResponse> => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    // Extract and log detailed error information
-    console.error("Error uploading file:", {
-      message: error.message,
-      response: error.response?.data,
-      stack: error.stack,
-    });
-
     return {
       success: false,
       message:
-        error.response?.data?.message ||
+        error.response?.data?.error ||
         "An error occurred while uploading the file.",
     };
   }
