@@ -26,6 +26,21 @@ const Navbar = ({
         } rounded-md border shadow-lg py-1 px-8 flex justify-between items-center`}
     >
       <div className="text-2xl font-bold cursor-pointer">Hoddy</div>
+      <div className="flex items-start gap-2">
+        <Button
+          onClick={runCode}
+          className={`${theme === "dark" ? "bg-slate-100 text-black hover:bg-white" : ""
+            } px-4 outline-none`}
+        >
+          Run Code
+        </Button>
+        <Button
+          className={`${theme === "dark" ? "bg-green-700 text-black hover:bg-green-500" : ""
+            } px-4 outline-none`}
+        >
+          Submit Code
+        </Button>
+      </div>
       <div className="flex items-center space-x-2">
         <DropdownMenu>
           <DropdownMenuTrigger className="px-4 outline-none border-b-2 py-1">
@@ -77,14 +92,9 @@ const Navbar = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button
-          onClick={runCode}
-          className={`${theme === "dark" ? "bg-slate-100 text-black hover:bg-white" : ""
-            } px-4 outline-none border-b-2 py-1`}
-        >
-          Run Code
-        </Button>
+
       </div>
+
     </div>
   );
 };
